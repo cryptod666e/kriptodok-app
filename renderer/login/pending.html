@@ -12,6 +12,8 @@
 </head>
 <body>
 
+  <canvas id="sky"></canvas>
+
   <div class="titlebar">
     <div class="titlebar-brand">
       <img class="titlebar-mark" src="../assets/logo-mark.png" alt="КриптоДок" />
@@ -29,16 +31,42 @@
 
   <main class="login-wrap">
     <div class="login-card pending-card" id="pending-view">
-      <h1>Заявка отправлена</h1>
+      <h1>Спасибо за регистрацию!</h1>
       <p class="lede" id="pending-message">
-        Ваша заявка на регистрацию передана администратору. Пожалуйста, дождитесь
-        одобрения и не закрывайте это окно — как только заявку одобрят, вы
-        автоматически попадёте в рабочее пространство.
+        Мы получили данные вашей компании и проверяем их.<br>
+        Пожалуйста, <b>не закрывайте это окно</b> — как только регистрацию
+        одобрят, вы сразу попадёте в рабочее пространство КриптоДок.
       </p>
 
-      <div class="pending-status" id="pending-status">
-        <canvas id="pending-chart" width="132" height="30"></canvas>
-        <span>Ожидает рассмотрения…</span>
+      <div class="pending-status scan" id="pending-status">
+        <div class="scan-head">
+          <span class="scan-title">Проверяем данные вашей компании</span>
+          <span class="eye" id="scan-eye" aria-hidden="true">
+            <svg viewBox="0 0 48 28" width="40" height="24">
+              <path d="M2 14C10 3 38 3 46 14C38 25 10 25 2 14Z" fill="#fff" stroke="#4e9bee" stroke-width="2.2" stroke-linejoin="round"/>
+              <g id="scan-iris" class="iris">
+                <circle cx="24" cy="14" r="7.2" fill="#4e9bee"/>
+                <circle cx="24" cy="14" r="3.1" fill="#0f2f57"/>
+                <circle cx="26.2" cy="11.8" r="1.3" fill="#fff"/>
+              </g>
+            </svg>
+          </span>
+        </div>
+
+        <div class="scan-rows" id="scan-rows">
+          <div class="scan-row" data-key="company"><span class="scan-mark"></span><span class="scan-label">Компания</span><span class="scan-value"></span></div>
+          <div class="scan-row" data-key="inn"><span class="scan-mark"></span><span class="scan-label">ИНН</span><span class="scan-value"></span></div>
+          <div class="scan-row" data-key="ogrn"><span class="scan-mark"></span><span class="scan-label">ОГРН</span><span class="scan-value"></span></div>
+          <svg class="lens" id="scan-lens" viewBox="0 0 40 40" width="38" height="38" aria-hidden="true">
+            <g class="lens-wobble">
+              <circle cx="16" cy="16" r="11" fill="rgba(78,155,238,0.14)" stroke="#4e9bee" stroke-width="3"/>
+              <path d="M10.5 13.5a6.5 6.5 0 0 1 5-3.6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
+              <line x1="24.2" y1="24.2" x2="35" y2="35" stroke="#4e9bee" stroke-width="4.5" stroke-linecap="round"/>
+            </g>
+          </svg>
+        </div>
+
+        <div class="scan-foot"><span class="pulse-dot"></span><span>Ожидаем одобрения…</span></div>
       </div>
 
       <div class="pending-rejected" id="pending-rejected" hidden>
@@ -56,6 +84,8 @@
 
   <footer class="app-footer">© 2026 КриптоДок</footer>
 
+  <script src="sky.js"></script>
+  <script src="pending-scan.js"></script>
   <script src="pending.js"></script>
 </body>
 </html>

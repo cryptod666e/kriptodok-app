@@ -11,6 +11,8 @@
 </head>
 <body>
 
+  <canvas id="sky"></canvas>
+
   <div class="titlebar">
     <div class="titlebar-brand">
       <img class="titlebar-mark" src="../assets/logo-mark.png" alt="КриптоДок" />
@@ -56,10 +58,27 @@
       <p class="switch-link">Нет аккаунта? <a href="#" id="link-to-register">Зарегистрироваться</a></p>
     </form>
 
-    <form class="login-card register-card" id="register-form" hidden>
-      <h1>Регистрация в КриптоДок</h1>
-      <p class="lede">Заполните данные, чтобы создать аккаунт</p>
+    <form class="login-card register-card" id="register-form" hidden novalidate>
+      <h1>Регистрация компании</h1>
+      <p class="lede">Заполните данные организации и контактного лица</p>
 
+      <div class="form-section">Компания</div>
+      <label class="field">
+        <span>Название компании</span>
+        <input type="text" id="reg-company" autocomplete="organization" placeholder="ООО «Ромашка»" required />
+      </label>
+      <div class="field-row">
+        <label class="field">
+          <span>ИНН</span>
+          <input type="text" id="reg-inn" inputmode="numeric" maxlength="12" placeholder="10 или 12 цифр" required />
+        </label>
+        <label class="field">
+          <span>ОГРН / ОГРНИП</span>
+          <input type="text" id="reg-ogrn" inputmode="numeric" maxlength="15" placeholder="13 или 15 цифр" required />
+        </label>
+      </div>
+
+      <div class="form-section">Контактное лицо</div>
       <div class="field-row">
         <label class="field">
           <span>Фамилия</span>
@@ -70,12 +89,28 @@
           <input type="text" id="reg-firstname" autocomplete="given-name" required />
         </label>
       </div>
+      <div class="field-row">
+        <label class="field">
+          <span>Должность</span>
+          <input type="text" id="reg-position" autocomplete="organization-title" placeholder="Например, директор" required />
+        </label>
+        <label class="field">
+          <span>Телефон</span>
+          <input type="tel" id="reg-phone" autocomplete="tel" placeholder="+7 900 000-00-00" required />
+        </label>
+      </div>
 
-      <label class="field">
-        <span>Желаемый логин</span>
-        <input type="text" id="reg-username" autocomplete="username" required />
-      </label>
-
+      <div class="form-section">Доступ в систему</div>
+      <div class="field-row">
+        <label class="field">
+          <span>Желаемый логин</span>
+          <input type="text" id="reg-username" autocomplete="username" required />
+        </label>
+        <label class="field">
+          <span>Email</span>
+          <input type="email" id="reg-email" autocomplete="email" required />
+        </label>
+      </div>
       <div class="field-row">
         <label class="field">
           <span>Пароль</span>
@@ -86,34 +121,6 @@
           <input type="password" id="reg-password-confirm" autocomplete="new-password" required />
         </label>
       </div>
-
-      <label class="field">
-        <span>Email</span>
-        <input type="email" id="reg-email" autocomplete="email" required />
-      </label>
-
-      <div class="field-row">
-        <label class="field">
-          <span>Телефон</span>
-          <input type="tel" id="reg-phone" autocomplete="tel" placeholder="+7 900 000-00-00" required />
-        </label>
-        <label class="field">
-          <span>Название компании</span>
-          <input type="text" id="reg-company" autocomplete="organization" required />
-        </label>
-      </div>
-
-      <label class="field">
-        <span>Ваш опыт в этой сфере</span>
-        <select id="reg-experience">
-          <option value="" selected disabled>Выберите вариант</option>
-          <option value="none">Только начинаю</option>
-          <option value="junior">Менее 1 года</option>
-          <option value="mid">1–3 года</option>
-          <option value="senior">3–5 лет</option>
-          <option value="expert">Более 5 лет</option>
-        </select>
-      </label>
 
       <p class="error" id="register-error"></p>
 
@@ -128,6 +135,7 @@
 
   <footer class="app-footer">© 2026 КриптоДок</footer>
 
+  <script src="sky.js"></script>
   <script src="login.js"></script>
 </body>
 </html>

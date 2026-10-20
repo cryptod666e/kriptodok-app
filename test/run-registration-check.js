@@ -23,7 +23,9 @@ async function main() {
       email: 'ivanov@company.ru',
       phone: '+7 900 000-00-00',
       company: 'ООО Ромашка',
-      experience: 'mid',
+      inn: '7707083893',
+      ogrn: '1027700132195',
+      position: 'директор',
     }),
   });
   const registerData = await registerRes.json();

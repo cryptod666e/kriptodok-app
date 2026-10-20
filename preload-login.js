@@ -11,6 +11,7 @@ contextBridge.exposeInMainWorld('kriptodok', {
     ipcRenderer.on('registration:status', listener);
     return () => ipcRenderer.removeListener('registration:status', listener);
   },
+  getPendingInfo: () => ipcRenderer.invoke('auth:get-pending-info'),
   backToLogin: () => ipcRenderer.invoke('auth:back-to-login'),
   onPingStatus: (callback) => {
     const listener = (_evt, payload) => callback(payload);

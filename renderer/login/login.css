@@ -20,10 +20,7 @@
 [hidden] { display: none !important; }
 html, body {
   margin: 0; padding: 0; width: 100%; height: 100%;
-  background:
-    radial-gradient(900px 500px at 15% -10%, rgba(78,155,238,0.16), transparent 60%),
-    radial-gradient(800px 480px at 100% 110%, rgba(78,155,238,0.12), transparent 60%),
-    var(--bg);
+  background: #3f8bdd;
   color: var(--text);
   font-family: var(--font-sans);
   overflow: hidden; user-select: none;
@@ -117,3 +114,38 @@ h1 { font-size: 18px; font-weight: 700; margin: 0 0 4px; letter-spacing: -0.01em
   animation: spin 0.7s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---------- Анимированный фон (синее небо + конверты) ---------- */
+#sky { position: fixed; inset: 0; width: 100%; height: 100%; display: block; z-index: 0; }
+.titlebar {
+  position: relative; z-index: 3; color: #fff;
+  background: rgba(255,255,255,0.14); backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(255,255,255,0.22);
+}
+.titlebar-name { color: #fff; }
+.tb-btn { color: #fff; }
+.tb-btn:hover { background: rgba(255,255,255,0.18); color: #fff; }
+.tb-btn-close:hover { background: var(--down); }
+.ping-indicator { color: rgba(255,255,255,0.92); }
+.ping-dot { background: rgba(255,255,255,0.75); }
+.login-wrap { position: relative; z-index: 2; }
+.app-footer {
+  position: relative; z-index: 3;
+  background: rgba(255,255,255,0.10); border-top: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.88);
+}
+.login-card {
+  border-color: rgba(255,255,255,0.6); border-radius: 12px;
+  box-shadow: 0 24px 60px rgba(16,52,102,0.28), 0 2px 6px rgba(16,52,102,0.12);
+  animation: card-rise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes card-rise { from { opacity: 0; transform: translateY(14px) scale(0.985); } to { opacity: 1; transform: none; } }
+.field input:focus, .field select:focus { box-shadow: 0 0 0 3px rgba(78,155,238,0.18); }
+.field input.is-invalid { border-color: var(--down); }
+.form-section {
+  margin: 14px 0 8px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text-faint);
+}
+.form-section:first-of-type { margin-top: 0; }
+.register-card { width: 460px; }
+@media (prefers-reduced-motion: reduce) { .login-card { animation: none; } }

@@ -51,6 +51,25 @@
   });
 
   // ---------- Registration ----------
+  // ОГРН (13 цифр) и ОГРНИП (15 цифр): последняя цифра — остаток от деления
+  // предыдущих цифр на 11 (для ОГРН) или на 13 (для ОГРНИП).
+  function isValidOgrn(ogrn) {
+    if (!/^\d{13}$|^\d{15}$/.test(ogrn)) return false;
+    const body = ogrn.slice(0, -1);
+    const div = ogrn.length === 13 ? 11 : 13;
+    return Number(body) % div % 10 === Number(ogrn.slice(-1));
+  }
+
+  // Проверка ИНН по контрольной сумме (10 цифр — организация, 12 — ИП/физлицо).
+  function isValidInn(inn) {
+    if (!/^\d{10}$|^\d{12}$/.test(inn)) return false;
+    const d = inn.split('').map(Number);
+    const check = (coef) => (coef.reduce((s, c, i) => s + c * d[i], 0) % 11) % 10;
+    if (inn.length === 10) return check([2, 4, 10, 3, 5, 9, 4, 6, 8]) === d[9];
+    return check([7, 2, 4, 10, 3, 5, 9, 4, 6, 8]) === d[10] &&
+           check([3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8]) === d[11];
+  }
+
   const regBtn = document.getElementById('btn-register');
   const regBtnLabel = regBtn.querySelector('.btn-label');
   const regBtnSpinner = regBtn.querySelector('.btn-spinner');
@@ -67,21 +86,46 @@
     regError.textContent = '';
 
     const payload = {
+      company: document.getElementById('reg-company').value.trim(),
+      inn: document.getElementById('reg-inn').value.replace(/\s+/g, ''),
+      ogrn: document.getElementById('reg-ogrn').value.replace(/\s+/g, ''),
+      phone: document.getElementById('reg-phone').value.trim(),
       lastName: document.getElementById('reg-lastname').value.trim(),
       firstName: document.getElementById('reg-firstname').value.trim(),
+      position: document.getElementById('reg-position').value.trim(),
+      email: document.getElementById('reg-email').value.trim(),
       username: document.getElementById('reg-username').value.trim(),
       password: document.getElementById('reg-password').value,
       passwordConfirm: document.getElementById('reg-password-confirm').value,
-      email: document.getElementById('reg-email').value.trim(),
-      phone: document.getElementById('reg-phone').value.trim(),
-      company: document.getElementById('reg-company').value.trim(),
-      experience: document.getElementById('reg-experience').value,
     };
 
-    if (payload.password !== payload.passwordConfirm) {
-      regError.textContent = 'Пароли не совпадают';
-      return;
+    registerForm.querySelectorAll('input').forEach((el) => el.classList.remove('is-invalid'));
+    const fail = (id, msg) => {
+      document.getElementById(id).classList.add('is-invalid');
+      regError.textContent = msg;
+    };
+
+    const required = [
+      ['reg-company', payload.company, 'Укажите название компании'],
+      ['reg-inn', payload.inn, 'Укажите ИНН'],
+      ['reg-ogrn', payload.ogrn, 'Укажите ОГРН (для ИП — ОГРНИП)'],
+      ['reg-phone', payload.phone, 'Укажите телефон'],
+      ['reg-lastname', payload.lastName, 'Укажите фамилию'],
+      ['reg-firstname', payload.firstName, 'Укажите имя'],
+      ['reg-position', payload.position, 'Укажите должность'],
+      ['reg-email', payload.email, 'Укажите email'],
+      ['reg-username', payload.username, 'Укажите логин'],
+      ['reg-password', payload.password, 'Укажите пароль'],
+    ];
+    for (const [id, value, msg] of required) {
+      if (!value) return fail(id, msg);
     }
+    if (!isValidInn(payload.inn)) return fail('reg-inn', 'ИНН указан неверно — проверьте цифры (10 для организации, 12 для ИП)');
+    if (!isValidOgrn(payload.ogrn)) return fail('reg-ogrn', 'ОГРН указан неверно — проверьте цифры (13 для организации, 15 для ИП)');
+    if (payload.phone.replace(/\D/g, '').length < 10) return fail('reg-phone', 'Телефон указан неверно');
+    if (!/^\S+@\S+\.\S+$/.test(payload.email)) return fail('reg-email', 'Email указан неверно');
+    if (payload.password.length < 6) return fail('reg-password', 'Пароль должен быть не короче 6 символов');
+    if (payload.password !== payload.passwordConfirm) return fail('reg-password-confirm', 'Пароли не совпадают');
 
     setRegLoading(true);
     const result = await window.kriptodok.register(payload);

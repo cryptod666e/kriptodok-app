@@ -1,11 +1,10 @@
-.pending-card { width: 380px; text-align: left; }
+.pending-card { width: 430px; text-align: left; }
 .pending-status {
   display: flex; align-items: center; gap: 12px;
   margin-top: 18px; padding: 12px 14px;
   background: var(--panel-2); border: 1px solid var(--border); border-radius: var(--radius);
   font-size: 12.5px; color: var(--text-dim);
 }
-#pending-chart { display: block; flex-shrink: 0; }
 
 .pending-rejected { margin-top: 18px; }
 .pending-rejected .error {
@@ -16,3 +15,57 @@
 }
 .pending-rejected .error a { color: var(--accent); text-decoration: none; }
 .pending-rejected .error a:hover { text-decoration: underline; }
+
+/* ---------- Панель «проверяем данные» ---------- */
+.pending-status.scan { flex-direction: column; align-items: stretch; gap: 12px; padding: 14px 16px 12px; }
+.scan-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.scan-title { font-size: 12.5px; font-weight: 600; color: var(--text); }
+.eye { display: inline-flex; animation: eye-blink 5s infinite; transform-origin: center; }
+.iris { transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); transform: translate(4px, 2px); }
+@keyframes eye-blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.08); } }
+
+.scan-rows { position: relative; display: flex; flex-direction: column; gap: 6px; }
+.scan-row {
+  position: relative; overflow: hidden; display: flex; align-items: center; gap: 10px;
+  padding: 9px 56px 9px 10px; min-height: 38px;
+  background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+  transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+}
+.scan-row.is-active { border-color: var(--accent); background: #f4f9ff; box-shadow: 0 0 0 3px var(--accent-soft); }
+.scan-row.is-active::after {
+  content: ''; position: absolute; top: 0; bottom: 0; width: 70px; left: -80px;
+  background: linear-gradient(90deg, transparent, rgba(78,155,238,0.22), transparent);
+  animation: sweep 1.1s ease-in-out infinite;
+}
+@keyframes sweep { to { left: 110%; } }
+.scan-mark {
+  flex-shrink: 0; width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid var(--border); position: relative; transition: all 0.25s;
+}
+.scan-row.is-active .scan-mark { border-color: var(--accent); border-top-color: transparent; animation: spin 0.8s linear infinite; }
+.scan-row.is-done .scan-mark { background: var(--up); border-color: var(--up); animation: none; }
+.scan-row.is-done .scan-mark::after {
+  content: ''; position: absolute; left: 3.5px; top: 0.5px; width: 4px; height: 8px;
+  border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
+}
+.scan-label { flex-shrink: 0; width: 70px; font-size: 11px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.05em; }
+.scan-value {
+  flex: 1; min-width: 0; font-family: var(--font-mono); font-size: 12.5px; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.lens {
+  position: absolute; right: 8px; top: 0; z-index: 2; pointer-events: none;
+  filter: drop-shadow(0 4px 6px rgba(16,52,102,0.28));
+  transition: transform 0.65s cubic-bezier(0.5, 0, 0.2, 1);
+}
+.lens-wobble { transform-origin: 16px 16px; animation: lens-wobble 2.2s ease-in-out infinite; }
+@keyframes lens-wobble { 0%, 100% { transform: rotate(-7deg) scale(1); } 50% { transform: rotate(6deg) scale(1.08); } }
+
+.scan-foot { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-dim); }
+.pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulse 1.6s ease-out infinite; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(78,155,238,0.55); } 80%, 100% { box-shadow: 0 0 0 9px rgba(78,155,238,0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .eye, .lens-wobble, .pulse-dot, .scan-row.is-active::after, .scan-row.is-active .scan-mark { animation: none; }
+}

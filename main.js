@@ -283,6 +283,7 @@ function pollRegistrationStatus(registrationId) {
       if (data.status === 'approved') {
         stopRegistrationPolling();
         store.delete('pendingRegistrationId');
+        store.delete('pendingInfo');
         store.set('token', data.token);
         store.set('email', data.email);
         store.set('tier', data.tier);
@@ -292,6 +293,7 @@ function pollRegistrationStatus(registrationId) {
       } else if (data.status === 'rejected') {
         stopRegistrationPolling();
         store.delete('pendingRegistrationId');
+        store.delete('pendingInfo');
         win?.webContents.send('registration:status', { status: 'rejected' });
       }
       // status === 'pending' -> ничего не делаем, ждём следующего тика
@@ -476,8 +478,8 @@ ipcMain.handle('auth:get-saved-email', () => store.get('email') || '');
 // статусом "pending", после чего окно переключается на экран ожидания и
 // начинает опрашивать её статус.
 ipcMain.handle('auth:register', async (_evt, payload) => {
-  const { lastName, firstName, username, password, email, phone, company } = payload || {};
-  if (!lastName || !firstName || !username || !password || !email || !phone || !company) {
+  const { lastName, firstName, username, password, email, phone, company, inn, ogrn, position } = payload || {};
+  if (!lastName || !firstName || !username || !password || !email || !phone || !company || !inn || !ogrn || !position) {
     return { ok: false, error: 'Заполните все обязательные поля' };
   }
 
@@ -497,14 +499,19 @@ ipcMain.handle('auth:register', async (_evt, payload) => {
   }
 
   store.set('pendingRegistrationId', data.registrationId);
+  // Данные компании — только для красивого экрана ожидания (лежат локально, после одобрения/отказа удаляются).
+  store.set('pendingInfo', { company, inn, ogrn });
   loadPending();
   pollRegistrationStatus(data.registrationId);
   return { ok: true };
 });
 
+ipcMain.handle('auth:get-pending-info', () => store.get('pendingInfo') || null);
+
 ipcMain.handle('auth:back-to-login', () => {
   stopRegistrationPolling();
   store.delete('pendingRegistrationId');
+        store.delete('pendingInfo');
   loadLogin();
   return true;
 });
