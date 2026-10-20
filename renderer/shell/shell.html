@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:;">
+<title>КриптоДок</title>
+<link rel="stylesheet" href="shell.css" />
+</head>
+<body>
+
+  <div class="titlebar">
+    <div class="titlebar-brand">
+      <img class="titlebar-mark" src="../assets/logo-mark.png" alt="КриптоДок" />
+      <span class="titlebar-name">КриптоДок</span>
+    </div>
+    <div class="titlebar-controls">
+      <span class="ping-indicator" id="ping-indicator" title="Качество интернет-соединения">
+        <span class="ping-dot" id="ping-dot"></span>
+        <span id="ping-value">—</span>
+      </span>
+      <button id="btn-logout" class="tb-text-btn">Выйти</button>
+      <button id="btn-min" class="tb-btn" aria-label="Свернуть">&#8211;</button>
+      <button id="btn-close" class="tb-btn tb-btn-close" aria-label="Закрыть">&#10005;</button>
+    </div>
+  </div>
+
+  <div class="update-banner" id="update-banner" hidden>
+    <span class="update-dot"></span>
+    <span id="update-banner-text"></span>
+  </div>
+
+  <div class="webview-wrap">
+    <div class="webview-loading" id="webview-loading">
+      <span class="spinner"></span>
+      <p>Загрузка КриптоДок…</p>
+    </div>
+    <webview id="app-webview" src="about:blank" style="width:100%; height:100%; display:none;"></webview>
+  </div>
+
+  <script src="shell.js"></script>
+</body>
+</html>

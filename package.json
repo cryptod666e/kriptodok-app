@@ -1,0 +1,33 @@
+{
+  "name": "kriptodok-app",
+  "productName": "KriptoDok",
+  "version": "1.0.0",
+  "description": "KriptoDok client — thin Electron shell: login screen + web app view",
+  "main": "main.js",
+  "author": "КриптоДок",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "dependencies": {
+    "electron-store": "^8.2.0"
+  },
+  "build": {
+    "appId": "com.kriptodok.app",
+    "productName": "KriptoDok",
+    "asar": true,
+    "directories": { "output": "dist", "buildResources": "build" },
+    "files": ["main.js", "preload-login.js", "preload-shell.js", "config.js", "lib/**/*", "renderer/**/*", "package.json"],
+    "win": {
+      "target": [{ "target": "zip", "arch": ["x64"] }],
+      "icon": "build/icon.ico"
+    },
+    "artifactName": "KriptoDok-win-x64.zip"
+  }
+}
