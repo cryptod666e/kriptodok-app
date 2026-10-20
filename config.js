@@ -1,7 +1,7 @@
 // Заглушки — замените на реальные значения перед релизом.
 module.exports = {
   // Адрес бэкенда (kriptodok-backend) — телеметрия, обновления, вход и регистрация.
-  BACKEND_URL: 'https://ncdai-backend-production.up.railway.app',
+  BACKEND_URL: 'https://kriptodok-backend-production.up.railway.app',
 
   // Веб-страница, которая грузится в окне после успешного входа.
   // Вся реальная логика/интерфейс программы живёт здесь, на сервере.
