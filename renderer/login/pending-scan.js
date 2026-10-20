@@ -5,7 +5,7 @@
   const lens = document.getElementById('scan-lens');
   const iris = document.getElementById('scan-iris');
   const rows = Array.from(rowsBox.querySelectorAll('.scan-row'));
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reduce = false; // анимация идёт всегда — не зависит от настройки Windows «Эффекты анимации»
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
   let info = null;

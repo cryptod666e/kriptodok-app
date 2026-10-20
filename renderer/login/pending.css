@@ -66,6 +66,3 @@
 .pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulse 1.6s ease-out infinite; }
 @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(78,155,238,0.55); } 80%, 100% { box-shadow: 0 0 0 9px rgba(78,155,238,0); } }
 
-@media (prefers-reduced-motion: reduce) {
-  .eye, .lens-wobble, .pulse-dot, .scan-row.is-active::after, .scan-row.is-active .scan-mark { animation: none; }
-}

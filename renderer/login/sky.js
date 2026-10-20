@@ -2,7 +2,7 @@
 (() => {
   const cv = document.getElementById('sky'), ctx = cv.getContext('2d');
   const logo = new Image(); logo.src = '../assets/logo-mark.png';
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reduce = false; // анимация идёт всегда — не зависит от настройки Windows «Эффекты анимации»
   let W, H, dpr;
   function resize(){ dpr = Math.min(devicePixelRatio||1, 2); W = innerWidth; H = innerHeight;
     cv.width = W*dpr; cv.height = H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0); }
