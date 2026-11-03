@@ -16,6 +16,17 @@
     loading.querySelector('p').textContent = 'Не удалось загрузить КриптоДок. Проверьте подключение к интернету.';
   });
 
+  // Страховка: если встроенная страница упала/зависла в чёрный экран — перезагружаем её.
+  let lastRecover = 0;
+  function recoverWebview() {
+    const now = Date.now();
+    if (now - lastRecover < 3000) return; // не чаще раза в 3 с, чтобы не зациклиться
+    lastRecover = now;
+    try { webview.reload(); } catch (_) { /* webview ещё не готов */ }
+  }
+  webview.addEventListener('render-process-gone', recoverWebview);
+  webview.addEventListener('crashed', recoverWebview);
+
   window.kriptodok.getAppUrl().then((url) => {
     webview.src = url;
   });

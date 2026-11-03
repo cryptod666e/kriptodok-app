@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, dialog, Tray, Menu, nativeImage, globalShortcut } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { spawn, execFile } = require('child_process');
@@ -11,9 +11,28 @@ const { sendHeartbeat } = require('./lib/telemetry');
 const { checkForUpdate, downloadToFile, verifyChecksum } = require('./lib/updater');
 const { checkComponents } = require('./lib/dependencies');
 
+// Безрамочное окно (frame:false) на некоторых видеокартах/драйверах рендерится
+// сплошным чёрным, а кнопка × у нас своя (не системная) — при чёрном экране её
+// не видно и не нажать. Аппаратное ускорение выключаем до app.ready.
+app.disableHardwareAcceleration();
+
+// Защита от двух одновременных копий: повторный запуск просто поднимает окно.
+if (!app.requestSingleInstanceLock()) {
+  app.quit();
+  process.exit(0);
+}
+
+// Запуск вместе с Windows: установщик пишет в реестр «KriptoDok.exe --autostart».
+// wasOpenedAtLogin Electron не видит автозапуск, прописанный через reg.exe,
+// поэтому используем собственный флаг. В этом режиме окно не показываем —
+// приложение сидит в трее.
+const startedAtLogin = process.argv.includes('--autostart');
+
 const store = new Store({ name: 'kriptodok-session' });
 
 let win = null;
+let tray = null;
+let isQuitting = false; // true — окно реально закрывается; иначе × прячет его в трей
 let installId = null;
 let elevatedTaskName = null; // имя задачи в планировщике для тихой установки компонентов (если включено при установке)
 let pendingUpdateInstallerPath = null; // set once an "optional" update has finished downloading
@@ -26,15 +45,25 @@ function createWindow() {
     minHeight: 600,
     frame: false,
     backgroundColor: '#f4f7fb',
+    show: !startedAtLogin,
     icon: path.join(__dirname, 'build', 'icon.ico'),
     webPreferences: {
       preload: path.join(__dirname, 'preload-login.js'),
       contextIsolation: true,
       nodeIntegration: false,
       webviewTag: true,
+      backgroundThrottling: false,
     },
   });
   win.setMenuBarVisibility(false);
+
+  // Крестик (и любое «закрыть») прячет окно в трей, чтобы не ждать повторной
+  // долгой загрузки рабочего пространства. Выход — «Выход» в меню трея.
+  win.on('close', (event) => {
+    if (isQuitting) return;
+    event.preventDefault();
+    win.hide();
+  });
 
   // ВРЕМЕННО, для диагностики: открыть консоль разработчика по F12.
   win.webContents.on('before-input-event', (_event, input) => {
@@ -102,6 +131,41 @@ function readElevatedTaskName() {
   }
 }
 
+function showWindow() {
+  if (!win) return;
+  if (win.isMinimized()) win.restore();
+  win.show();
+  win.focus();
+}
+
+function quitApp() {
+  isQuitting = true;
+  app.quit();
+}
+
+function createTray() {
+  try {
+    const icon = nativeImage.createFromPath(path.join(__dirname, 'build', 'icon.ico'));
+    tray = new Tray(icon);
+    tray.setToolTip('КриптоДок');
+    tray.setContextMenu(
+      Menu.buildFromTemplate([
+        { label: 'Открыть КриптоДок', click: showWindow },
+        { type: 'separator' },
+        { label: 'Выход', click: quitApp },
+      ])
+    );
+    tray.on('click', showWindow);
+  } catch (err) {
+    console.warn('[tray] не удалось создать значок в трее:', err.message);
+  }
+}
+
+app.on('second-instance', showWindow);
+
+// Аварийный выход на случай чёрного экрана: работает, даже если окно не отрисовалось.
+app.on('will-quit', () => globalShortcut.unregisterAll());
+
 app.whenReady().then(() => {
   if (!isProperlyInstalled()) {
     dialog.showErrorBox(
@@ -115,10 +179,13 @@ app.whenReady().then(() => {
   installId = resolveInstallId();
   elevatedTaskName = readElevatedTaskName();
   createWindow();
+  createTray();
+  globalShortcut.register('CommandOrControl+Shift+Q', quitApp);
   runStartupTasks();
 });
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
+  // Приложение живёт в трее; выходим только явно (isQuitting).
+  if (isQuitting && process.platform !== 'darwin') app.quit();
 });
 
 // БЕЗОПАСНОСТЬ: без этого встроенный webview (то, что грузит APP_WEB_URL)
@@ -157,6 +224,7 @@ app.on('web-contents-created', (_event, contents) => {
 // app was running, apply it right as the user quits — matches what we
 // promised in the admin panel: optional updates land on the next restart.
 app.on('before-quit', () => {
+  isQuitting = true;
   if (pendingUpdateInstallerPath) {
     spawn(pendingUpdateInstallerPath, [], { detached: true, stdio: 'ignore' }).unref();
   }
@@ -220,7 +288,7 @@ async function runStartupTasks() {
     // Критическое обновление — ставим немедленно, без вопроса пользователю.
     notifyUpdateStatus({ state: 'installing', version: update.version });
     spawn(destPath, [], { detached: true, stdio: 'ignore' }).unref();
-    app.quit();
+    quitApp(); // isQuitting = true — иначе close-обработчик спрятал бы окно вместо выхода
   } else {
     // Обычное обновление — тихо ждём следующего перезапуска (см. before-quit выше).
     pendingUpdateInstallerPath = destPath;
@@ -436,7 +504,7 @@ async function runComponentInstall() {
 
 // ---------- Window chrome ----------
 ipcMain.on('window:minimize', () => win?.minimize());
-ipcMain.on('window:close', () => win?.close());
+ipcMain.on('window:close', () => win?.close()); // перехватывается обработчиком close -> скрытие в трей
 
 // ---------- Auth ----------
 ipcMain.handle('auth:login', async (_evt, { email, password, remember }) => {
@@ -511,7 +579,7 @@ ipcMain.handle('auth:get-pending-info', () => store.get('pendingInfo') || null);
 ipcMain.handle('auth:back-to-login', () => {
   stopRegistrationPolling();
   store.delete('pendingRegistrationId');
-        store.delete('pendingInfo');
+  store.delete('pendingInfo');
   loadLogin();
   return true;
 });
