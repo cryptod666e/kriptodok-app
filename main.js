@@ -344,7 +344,7 @@ function pollRegistrationStatus(registrationId) {
   stopRegistrationPolling();
   registrationPollTimer = setInterval(async () => {
     try {
-      const res = await fetch(`${config.BACKEND_URL}/api/auth/registration-status/${registrationId}`);
+      const res = await fetch(`${config.BACKEND_URL}/api/auth/registration-status/${registrationId}?installId=${encodeURIComponent(installId || '')}`);
       if (!res.ok) return; // сеть/сервер временно недоступны — тихо пробуем ещё раз на следующем тике
       const data = await res.json();
 
@@ -556,7 +556,7 @@ ipcMain.handle('auth:register', async (_evt, payload) => {
     const res = await fetch(`${config.BACKEND_URL}/api/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ ...payload, installId }), // installId — чтобы в админке у установки сразу был виден e-mail
     });
     data = await res.json().catch(() => ({}));
     if (!res.ok || !data.ok) {
